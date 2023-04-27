@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Business.DbModels
+namespace ServerApi.DbModels
 {
     public class DishAndDrink
     {
@@ -10,11 +10,9 @@ namespace Business.DbModels
         [MaxLength(100)]
         public string Name { get; set; }
 
-        public int CategoryID { get; set; }
+        public int CategoryId { get; set; }
 
         public float Price { get; set; }
-
-        public string ImageString64 { get; set; }
 
         [Required]
         [MaxLength(2000)]

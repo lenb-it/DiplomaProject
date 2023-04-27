@@ -2,7 +2,7 @@
 
 namespace Business.Models
 {
-    public class RegisterViewModel : IViewModelIsValid
+    public class RegisterViewModel
     {
         [Required]
         [DataType(DataType.EmailAddress)]
@@ -17,7 +17,7 @@ namespace Business.Models
         public string ConfirmPassword { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
+        [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
         [Required]
@@ -25,19 +25,5 @@ namespace Business.Models
 
         [Required]
         public string LastName { get; set; }
-
-        public IEnumerable<string> Errors()
-        {
-            //todo err
-            throw new NotImplementedException();
-        }
-
-        public bool IsValid()
-        {
-            return !(string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password) 
-                || string.IsNullOrWhiteSpace(ConfirmPassword) || ConfirmPassword != Password
-                || string.IsNullOrWhiteSpace(PhoneNumber) || string.IsNullOrWhiteSpace(FirstName)
-                || string.IsNullOrWhiteSpace(LastName));
-        }
     }
 }

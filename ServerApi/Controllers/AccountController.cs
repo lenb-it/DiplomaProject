@@ -1,12 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Business.Constants;
-using Business.DbModels;
+using ServerApi.DbModels;
 using Business.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ServerApi.Controllers
 {
@@ -37,10 +38,11 @@ namespace ServerApi.Controllers
         ///     }
         ///     
         /// </remarks>
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<IActionResult> LogIn([FromBody] LogInViewModel model)
         {
-            if (!model.IsValid()) return BadRequest(); //todo model.Errors
+            if (!ModelState.IsValid) return BadRequest();
+            //if (!model.IsValid()) return BadRequest(model.Errors);
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -53,15 +55,16 @@ namespace ServerApi.Controllers
             var claims = (await _userManager.GetClaimsAsync(user)).ToList();
             var token = CreateToket(claims);
 
-            return Ok(token);
+            return Ok(new { user.Email, token });
         }
 
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
-            if (!model.IsValid()) return BadRequest(); //todo model.Errors
+            if (!ModelState.IsValid) return BadRequest();
+            //if (!model.IsValid()) return BadRequest(model.Errors);
 
-            if (await _userManager.FindByEmailAsync(model.Email) is not null) 
+            if (await _userManager.FindByEmailAsync(model.Email) is not null)
                 return BadRequest("Такой пользователь уже зарегестрирован");
 
             var registerUser = CreateRegisterUser(model);
@@ -78,6 +81,13 @@ namespace ServerApi.Controllers
             var token = CreateToket(claims);
 
             return signInResult.Succeeded ? Ok(token) : Unauthorized();
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult CheckToken()
+        {
+            return Ok();
         }
 
         private string CreateToket(List<Claim> claims)

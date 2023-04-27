@@ -1,4 +1,7 @@
-﻿namespace Business.DbModels
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ServerApi.DbModels
 {
     public class DiscountDishAndDrink
     {
@@ -8,9 +11,10 @@
 
         public float DiscountValue { get; set; }
 
-        //todo: тип дата
+        [Column(TypeName = "date")]
         public DateTime DateStart { get; set; }
 
+        [Column(TypeName = "date")]
         public DateTime DateEnd { get; set; }
 
         public DateTime ChangeAt { get; set; }

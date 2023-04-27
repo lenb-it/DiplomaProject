@@ -1,0 +1,12 @@
+.title{
+	font-size: 60px;
+	background-attachment: fixed;
+}
+
+.section-img{
+	margin: 0px;
+	background-position: top;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	object-fit: cover;
+}

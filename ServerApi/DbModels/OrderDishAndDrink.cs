@@ -1,4 +1,4 @@
-﻿namespace Business.DbModels
+﻿namespace ServerApi.DbModels
 {
     public class OrderDishAndDrink
     {

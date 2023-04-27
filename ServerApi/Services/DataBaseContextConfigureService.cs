@@ -1,5 +1,5 @@
-﻿using Business.Contexts;
-using Business.DbModels;
+﻿using ServerApi.Contexts;
+using ServerApi.DbModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

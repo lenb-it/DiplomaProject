@@ -1,4 +1,4 @@
-﻿namespace Business.DbModels
+﻿namespace ServerApi.DbModels
 {
     public class Order
     {
@@ -9,6 +9,8 @@
         public float Price { get; set; }
 
         public bool IsPaid { get; set; }
+
+        public int NumberPlace { get; set; }
 
         public DateTime ChangeAt { get; set; }
 

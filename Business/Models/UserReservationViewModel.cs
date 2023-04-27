@@ -2,14 +2,12 @@
 
 namespace Business.Models
 {
-    public class LogInViewModel
+    public class UserReservationViewModel
     {
         [Required]
-        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public DateTime Date { get; set; }
     }
 }

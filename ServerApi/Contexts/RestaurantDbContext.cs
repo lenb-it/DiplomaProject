@@ -1,9 +1,9 @@
-﻿using Business.DbModels;
+﻿using ServerApi.DbModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Business.Contexts
+namespace ServerApi.Contexts
 {
     public class RestaurantDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
@@ -13,8 +13,6 @@ namespace Business.Contexts
         }
 
         public DbSet<UserReservation> UserReservations { get; set; }
-
-        public DbSet<ReservationTime> ReservationTimes { get; set; }
 
         public DbSet<Order> Orders { get; set; }
 

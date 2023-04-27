@@ -1,5 +1,3 @@
-using Business.Contexts;
-using Microsoft.EntityFrameworkCore;
 using ServerApi.Services;
 
 namespace ServerApi
@@ -29,6 +27,16 @@ namespace ServerApi
             services.AddEndpointsApiExplorer();
 
             SwaggerConfigureService.Configure(services);
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("MyPolicy", builder =>
+                {
+                    builder.WithOrigins("https://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
         }
 
         private static void Configure(WebApplication app)
@@ -42,10 +50,12 @@ namespace ServerApi
                 });
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseCors("MyPolicy");
 
             app.MapControllers();
         }

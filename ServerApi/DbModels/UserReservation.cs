@@ -1,10 +1,10 @@
-﻿namespace Business.DbModels
+﻿namespace ServerApi.DbModels
 {
     public class UserReservation
     {
         public int Id { get; set; }
 
-        public int ReservationTimeId { get; set; }
+        public DateTime Date { get; set; }
 
         public int UserId { get; set; }
 
@@ -15,7 +15,5 @@
         public DateTime CreateAt { get; set; }
 
         public User User { get; set; }
-
-        public ReservationTime ReservationTime { get; set; }
     }
 }

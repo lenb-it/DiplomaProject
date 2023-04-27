@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Business.DbModels
+namespace ServerApi.DbModels
 {
     public class DishAndDrinkCategory
     {
