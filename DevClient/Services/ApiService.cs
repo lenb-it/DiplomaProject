@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Business.Constants;
 using Business.Models;
+using DevClient.ViewModels;
 using Newtonsoft.Json;
 
 namespace DevClient.Services
@@ -101,9 +102,11 @@ namespace DevClient.Services
         #region DishAndDrink
 
 
-        public static Task<bool> UpdateDishAndDrink(DishAndDrinkUpdate dishAndDrinkUpdate)
+        public static async Task<bool> UpdateDishAndDrink(DishAndDrinkUpdate dishAndDrinkUpdate)
         {
-            throw new NotImplementedException();
+            var result = await _client.PutAsJsonAsync("/Menu/UpdateDishAndDrink", dishAndDrinkUpdate);
+
+            return result.IsSuccessStatusCode;
         }
 
         public static async Task<List<DishAndDrinkMenu>> GetMenu()
@@ -121,7 +124,6 @@ namespace DevClient.Services
 
         #region Discount
 
-
         public static async Task<bool> DiscountAddRange(DiscountAddRange model)
         {
             var result = await _client.PostAsJsonAsync("/Discount/AddRange", model);
@@ -129,6 +131,41 @@ namespace DevClient.Services
             return result.IsSuccessStatusCode;
         }
 
+        public static async Task<List<DiscountViewModel>> GetLastFiveHundredDiscounts()
+        {
+            var result = await _client.GetAsync("/Discount/GetLastFiveHundred");
+
+            var json = await result.Content.ReadAsStringAsync();
+            var model = JsonConvert.DeserializeObject<List<DiscountViewModel>>(json);
+
+            return model ?? new List<DiscountViewModel>();
+        }
+
+        public static async Task<bool> UpdateDiscount(DiscountViewModel discountViewModel)
+        {
+            var result = await _client.PutAsJsonAsync($"/Discount/Update/", discountViewModel);
+
+            return result.IsSuccessStatusCode;
+        }
+
+        public static async Task<bool> DeleteDiscount(int id)
+        {
+            var result = await _client.DeleteAsync($"/Discount/Delete?id={id}");
+
+            return result.IsSuccessStatusCode;
+        }
+
         #endregion
+
+        public static async Task<string[]> GetCategories()
+        {
+            var result = await _client.GetAsync("/Menu/GetDishAndDrinkCategories");
+
+            var json = await result.Content.ReadAsStringAsync();
+            var model = JsonConvert.DeserializeObject<string[]>(json);
+
+            return model ?? Array.Empty<string>();
+        }
+
     }
 }

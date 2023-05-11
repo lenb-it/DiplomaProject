@@ -1,11 +1,13 @@
-import Navigation from "Components/Navigation/Navigation"
-import MenuSection from "Components/MenuSection/MenuSection"
+import Header from "Components/Header/Header";
+import MenuList from "Components/MenuList/MenuList";
 
 function MenuPage() {
 	return <>
-		<Navigation />
-		{/* цикл */}
-		<MenuSection title="drink" />
+		<Header
+			title={"Меню"}
+			imagePath={"./img/header-order.jpg"}
+			isNotLines={true} />
+		<MenuList />
 	</>
 }
 

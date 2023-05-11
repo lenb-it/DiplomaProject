@@ -15,3 +15,11 @@
 	justify-content: center;
 	align-items: center;
 }
+
+@media (max-width: 610px) {
+		.block-center{
+			min-width: 200px;
+			max-width: 300px;
+			padding: 20px 15px;
+		}
+}

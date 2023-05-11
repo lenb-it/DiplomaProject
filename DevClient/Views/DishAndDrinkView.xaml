@@ -8,7 +8,7 @@
       xmlns:vms="clr-namespace:DevClient.ViewModels"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="ReservationView">
+      Title="DishAndDrinkView">
     <Page.DataContext>
         <vms:DishAndDrinkVM/>
     </Page.DataContext>
@@ -28,6 +28,9 @@
             <Button  Content="Добавить акцию выбранных"
                      Margin="5,0,0,0"
                      Command="{Binding DiscountSelectedAsyncCommand}"/>
+            <Button  Content="Изменить категорию выбранных"
+                     Margin="5,0,0,0"
+                     Command="{Binding ChangeCategorySelectedAsyncCommand}"/>
         </StackPanel>
 
         <DataGrid CanUserAddRows="False"

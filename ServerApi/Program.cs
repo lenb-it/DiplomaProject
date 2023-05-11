@@ -32,7 +32,7 @@ namespace ServerApi
             {
                 options.AddPolicy("MyPolicy", builder =>
                 {
-                    builder.WithOrigins("https://localhost:3000")
+                    builder.AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });

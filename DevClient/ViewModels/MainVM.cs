@@ -18,6 +18,28 @@ namespace DevClient.ViewModels
         private Page _orderPage;
         private Page _reservationPage;
         private Page _dishAndDrinkPage;
+        private Page _discountPage;
+
+        [RelayCommand]
+        public async void Discount()
+        {
+            CurrentPage = _discountPage ??= new DiscountView();
+            var model = new DiscountVM();
+            var discounts = await ApiService.GetLastFiveHundredDiscounts();
+
+            model.SetData(discounts.Select(x => new DiscountModel
+            {
+                Id = x.Id,
+                DateEnd = x.DateEnd,
+                DateStart = x.DateStart,
+                DiscountValue = x.DiscountValue,
+                DishAndDrinkName = x.DishAndDrinkName,
+                DiscountPrice = x.DiscountPrice,
+            })
+            .ToList());
+
+            CurrentPage.DataContext = model;
+        }
 
         [RelayCommand]
         public async void DishAndDrink()
@@ -38,7 +60,7 @@ namespace DevClient.ViewModels
             })
             .ToList());
 
-            _dishAndDrinkPage.DataContext = model;
+            CurrentPage.DataContext = model;
         }
 
         [RelayCommand]
@@ -48,7 +70,7 @@ namespace DevClient.ViewModels
             var model = new OrderVM();
             var orders = await ApiService.GetLastFiveHundredOrders();
             //todo order
-            _orderPage.DataContext = model;
+            CurrentPage.DataContext = model;
         }
 
         [RelayCommand]
@@ -70,7 +92,7 @@ namespace DevClient.ViewModels
                 })
                 .ToList());
 
-            _reservationPage.DataContext = model;
+            CurrentPage.DataContext = model;
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace DevClient.Views
@@ -17,7 +18,7 @@ namespace DevClient.Views
     /// <summary>
     /// Логика взаимодействия для DiscountView.xaml
     /// </summary>
-    public partial class DiscountView : Window
+    public partial class DiscountView : Page
     {
         public DiscountView()
         {

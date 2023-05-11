@@ -1,3 +1,4 @@
+import "./AppRouter.css"
 import MainPage from "Components/Pages/MainPage/MainPage";
 import MenuPage from "Components/Pages/MenuPage/MenuPage";
 import LogInPage from "Components/Pages/LogInPage/LogInPage";
@@ -6,12 +7,15 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { Context } from "index";
 import { observer } from "mobx-react-lite";
+import ReservationPage from "Components/Pages/ReservationPage/ReservationPage";
+import OrderPage from "Components/Pages/Orderpage/OrderPage";
+import ConfirmOrderPage from "Components/Pages/ConfirmOrderPage/ConfirmOrderPage";
 
 const AppRouter = observer(() => {
 	const { user } = useContext(Context);
 	useEffect(() => {
-		user.setIsAuth(JSON.parse(localStorage.getItem("userStore"))._isAuth)
-	}, []);
+		user.setIsAuth(localStorage.getItem("token"))
+	}, [user]);
 
 	return <>
 		<BrowserRouter>
@@ -19,6 +23,9 @@ const AppRouter = observer(() => {
 				<Route path="/" element={<MainPage />} />
 				<Route path="menu" element={<MenuPage />} />
 				<Route path="login" element={<LogInPage />} />
+				<Route path="reservation" element={<ReservationPage />} />
+				<Route path="order" element={<OrderPage />} />
+				<Route path="confirm-order" element={<ConfirmOrderPage />} />
 				<Route path="registration" element={<RegistrationPage />} />
 			</Routes>
 		</BrowserRouter>

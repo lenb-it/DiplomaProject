@@ -33,21 +33,19 @@
                 <Button Content="Заказы"
                         HorizontalAlignment="Stretch"
                         Command="{Binding OrderCommand}"
-                        Height="40"/>
+                        Height="60"/>
                 <Button Content="Бронирования"
                         HorizontalAlignment="Stretch"
                         Command="{Binding ReservationCommand}"
-                        Height="40"/>
+                        Height="60"/>
                 <Button Content="Блюда и напитки"
                         HorizontalAlignment="Stretch"
-                        Height="40"
+                        Height="60"
                         Command="{Binding DishAndDrinkCommand}"/>
-                <Button Content="1"
+                <Button Content="Акции"
                         HorizontalAlignment="Stretch"
-                        Height="40"/>
-                <Button Content="2"
-                        HorizontalAlignment="Stretch"
-                        Height="40"/>
+                        Command="{Binding DiscountCommand}"
+                        Height="60"/>
             </StackPanel>
         </materialDesign:ColorZone>
 

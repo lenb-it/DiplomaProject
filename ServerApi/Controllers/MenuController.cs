@@ -5,11 +5,9 @@ using Business.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
 
 namespace ServerApi.Controllers
 {
-    [Authorize]
     public class MenuController : BaseApiController
     {
         private readonly RestaurantDbContext _dbContext;
@@ -20,7 +18,6 @@ namespace ServerApi.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public async Task<IActionResult> GetValidMenuWithDiscount()
         {
             var menu = await _dbContext.DishesAndDrinks
@@ -38,7 +35,7 @@ namespace ServerApi.Controllers
 
             var now = DateTime.UtcNow;
             var discounts = _dbContext.DiscountDishesAndDrinks
-                .Where(x => x.DateStart >= now && x.DateEnd <= now_
+                .Where(x => x.DateStart <= now && x.DateEnd >= now)
                 .ToList();
 
             discounts.ForEach(discount =>
@@ -54,9 +51,8 @@ namespace ServerApi.Controllers
             return Ok(menu);
         }
 
-
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> GetAllMenu()
         {
             var menu = await _dbContext.DishesAndDrinks
@@ -74,7 +70,7 @@ namespace ServerApi.Controllers
 
             var now = DateTime.UtcNow;
             var discounts = await _dbContext.DiscountDishesAndDrinks
-                .Where(x => x.DateStart >= now && x.DateEnd <= now)
+                .Where(x => x.DateStart <= now && x.DateEnd >= now)
                 .ToListAsync();
 
             discounts.ForEach(discount =>
@@ -88,6 +84,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetDishAndDrinkById([FromBody] int id)
         {
             var dishAndDrink = await _dbContext.DishesAndDrinks
@@ -99,7 +96,8 @@ namespace ServerApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateDishAndDrinkByName([FromBody] DishAndDrinkUpdate model)
+        [Authorize]
+        public async Task<IActionResult> UpdateDishAndDrink([FromBody] DishAndDrinkUpdate model)
         {
             if (!ModelState.IsValid) return BadRequest();
 

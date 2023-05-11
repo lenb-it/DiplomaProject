@@ -17,6 +17,8 @@ namespace DevClient.Models
         [ObservableProperty]
         private string _name;
 
+        //todo number phone
+
         [ObservableProperty]
         private DateTime _date;
 
@@ -30,8 +32,7 @@ namespace DevClient.Models
 
         public async Task<bool> DeleteAsync()
         {
-            return await Task.Run(() => false);
-            //return await ApiService.DeleteReservation(Id);
+            return await ApiService.DeleteReservation(Id);
         }
 
         public async Task<bool> UpdateAsync()

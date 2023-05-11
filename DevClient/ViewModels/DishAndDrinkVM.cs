@@ -5,6 +5,7 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevClient.Models;
+using DevClient.Services;
 using DevClient.Views;
 
 namespace DevClient.ViewModels
@@ -41,14 +42,32 @@ namespace DevClient.ViewModels
         }
 
         [RelayCommand]
-        public async void DiscountSelectedAsync()
+        public async void ChangeCategorySelectedAsync()
         {
-            var view = new DiscountView();
-            var model = new DiscountVM();
+            var view = new ChangeCategoryView();
+            var model = new ChangeCategoryVM();
+            var categories = await ApiService.GetCategories(); 
             var selected = DishesAndDrinks
                 .Where(x => x.IsSelected)
-                .Select(x => x.Id)
-                .ToArray();
+                .ToList();
+
+            model.SetDishesAndDrinks(selected);
+            model.Categories = categories;
+            model.SelectedCategory = categories.FirstOrDefault();
+            model.CloseAction = () => view.Close();
+
+            view.DataContext = model;
+            view.Show();
+        }
+
+        [RelayCommand]
+        public async void DiscountSelectedAsync()
+        {
+            var view = new AddDiscountView();
+            var model = new AddDiscountVM();
+            var selected = DishesAndDrinks
+                .Where(x => x.IsSelected)
+                .ToList();
 
             model.SetDishesAndDrinks(selected);
             model.CloseAction = () => view.Close();

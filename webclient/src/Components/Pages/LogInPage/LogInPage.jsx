@@ -1,51 +1,54 @@
 import Navigation from "Components/Navigation/Navigation";
-import { useState, useContext, useEffect } from "react";
+import { useContext, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { login } from "Api/ApiRequest";
 import { observer } from "mobx-react-lite";
 import { Context } from "index";
 import "./LogInPage.css";
+import ValidInput from "Components/ValidInput/ValidInput";
+
+import ModalClose from "Components/ModalClose/ModalClose";
 
 const LogInPage = observer(() => {
 	const { user } = useContext(Context);
-	const [email, setEmail] = useState();
-	const [password, setPassword] = useState();
+	const [show, setShow] = useState(false);
 	const history = useNavigate();
-	useEffect(() => { }, []);
 
 	async function auth(e) {
 		e.preventDefault();
-		await login(email, password)
+
+		await login(user.email, user.password)
 			.then(x => {
 				user.setIsAuth(true);
 				localStorage.setItem("token", x.data.token);
 				localStorage.setItem("email", x.data.email);
-				localStorage.setItem('userStore', JSON.stringify(user));
 				history("/");
 			})
-			.catch(x => console.log(x));
-		//todo сделай нормально
+			.catch(x => setShow(true));
+	}
+
+	function onHide() {
+		setShow(false)
 	}
 
 	return <>
 		<Navigation />
+		<ModalClose onHide={onHide} show={show} body={"Не получилось авторизироваться"} />
 		<div className="back-grey">
-			<div className="block-center ">
+			<div className="block-center-log">
 				<Form>
 					<Form.Group className="mb-3">
 						<h3 className="text-center">Вход</h3>
 					</Form.Group>
-					<Form.Group className="mb-3" controlId="formBasicEmail">
-						<Form.Label>Email адрес</Form.Label>
-						<Form.Control type="email" placeholder="Введите email"
-							onChange={(e) => setEmail(e.target.value)} value={email} />
-					</Form.Group>
-					<Form.Group className="mb-3" controlId="formBasicPassword">
-						<Form.Label>Password</Form.Label>
-						<Form.Control type="password" placeholder="Введите пароль"
-							onChange={(e) => setPassword(e.target.value)} value={password} />
-					</Form.Group>
+					<ValidInput
+						title="Email адрес"
+						placeholder="Введите email"
+						type="email" />
+					<ValidInput
+						title="Введите пароль"
+						placeholder="Введите пароль"
+						type="password" />
 					<Form.Group className="d-grid">
 						<Button variant="primary" type="submit" onClick={(e) => auth(e)}>Войти</Button>
 					</Form.Group>

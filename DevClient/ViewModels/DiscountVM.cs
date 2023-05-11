@@ -1,52 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using Business.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevClient.Models;
-using DevClient.Services;
 
 namespace DevClient.ViewModels
 {
     public partial class DiscountVM : ObservableObject
     {
         [ObservableProperty]
-        private DateTime _dateStart = DateTime.UtcNow;
+        private ObservableCollection<DiscountModel> _discounts;
 
-        [ObservableProperty]
-        private DateTime _dateEnd = DateTime.UtcNow;
-
-        [ObservableProperty]
-        private int _discount = 10;
-
-        public Action CloseAction { get; set; }
-
-        private int[] _dishAndDrinkIds;
-
-        public void SetDishesAndDrinks(int[] dishesAndDrinks)
+        public DiscountVM()
         {
-            _dishAndDrinkIds = dishesAndDrinks;
+            _discounts = new ObservableCollection<DiscountModel>();
+        }
+
+        public void SetData(List<DiscountModel> data)
+        {
+            Discounts.Clear();
+            data.ForEach(x => Discounts.Add(x));
         }
 
         [RelayCommand]
-        public async void AddDiscount()
+        public async void UpdateSelectedAsync()
         {
-            var dateEnd = DateEnd.AddDays(1);
-            var model = new DiscountAddRange
+            var selected = Discounts.Where(x => x.IsSelected).ToList();
+
+            foreach (var item in selected)
             {
-                DateEnd = DateStart,
-                DateStart = dateEnd,
-                Discount = Discount,
-                DishAndDrinkIds = _dishAndDrinkIds,
-            };
+                if (await item.UpdateAsync())
+                    item.IsSelected = false;
+            }
 
-            if (!(await ApiService.DiscountAddRange(model)))
-                MessageBox.Show("Произошла ошибка при сохранении");
+            if (selected.Any(x => x.IsSelected))
+                MessageBox.Show("Выделенные элементы не удалось сохранить, попробуйте ещё раз!");
+        }
 
-            CloseAction?.Invoke();
+        [RelayCommand]
+        public async void DeleteSelectedAsync()
+        {
+            var selected = Discounts.Where(x => x.IsSelected).ToList();
+
+            foreach (var item in selected)
+            {
+                if (await item.DeleteAsync())
+                    Discounts.Remove(item);
+            }
         }
     }
 }

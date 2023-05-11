@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Business.Models;
 using Microsoft.AspNetCore.Identity;
+using Business.Constants;
 
 namespace ServerApi.Controllers
 {
-    [Authorize]
     public class ReservationController : BaseApiController
     {
         private readonly RestaurantDbContext _dbContext;
@@ -21,6 +21,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = RoleNames.Administrator)]
         public async Task<IActionResult> Update([FromBody] Reservation model)
         {
             if (!ModelState.IsValid) return BadRequest();
@@ -41,6 +42,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = RoleNames.Administrator)]
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
             var reservation = await _dbContext.UserReservations
@@ -55,6 +57,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Add([FromBody] Business.Models.UserReservation model)
         {
             if (!ModelState.IsValid) return BadRequest();
@@ -68,6 +71,7 @@ namespace ServerApi.Controllers
                 UserId = user.Id,
                 User = user,
                 IsValid = false,
+                CountPeople = model.CountPeople,
                 Date = model.Date,
                 CreateAt = DateTime.UtcNow,
                 ChangeAt = DateTime.UtcNow,
@@ -80,6 +84,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = RoleNames.Administrator)]
         public async Task<IActionResult> GetLastFiveHundred()
         {
             var reservations = await _dbContext.UserReservations
