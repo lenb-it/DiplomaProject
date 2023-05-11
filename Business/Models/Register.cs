@@ -2,7 +2,7 @@
 
 namespace Business.Models
 {
-    public class RegisterViewModel
+    public class Register
     {
         [Required]
         [DataType(DataType.EmailAddress)]

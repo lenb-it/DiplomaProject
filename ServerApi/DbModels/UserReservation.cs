@@ -1,4 +1,6 @@
-﻿namespace ServerApi.DbModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ServerApi.DbModels
 {
     public class UserReservation
     {
@@ -9,6 +11,9 @@
         public int UserId { get; set; }
 
         public bool IsValid { get; set; }
+
+        [Range(1, 10)]
+        public int CountPeople { get; set; }
 
         public DateTime ChangeAt { get; set; }
 

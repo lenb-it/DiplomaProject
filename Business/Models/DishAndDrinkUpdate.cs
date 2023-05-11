@@ -2,16 +2,15 @@
 
 namespace Business.Models
 {
-    public class DishAndDrinkAddViewModel
+    public class DishAndDrinkUpdate
     {
         [Required]
         [MaxLength(100)]
         public string Name { get; set; }
 
-        public float Price { get; set; }
+        public int Id { get; set; }
 
-        [Required]
-        public string ImageString64 { get; set; }
+        public float Price { get; set; }
 
         [Required]
         public string CategoryName { get; set; }

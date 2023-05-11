@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Business.Models;
 using Microsoft.AspNetCore.Identity;
-using Business.Constants;
 
 namespace ServerApi.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class ReservationController : BaseApiController
     {
         private readonly RestaurantDbContext _dbContext;
@@ -22,37 +21,30 @@ namespace ServerApi.Controllers
         }
 
         [HttpPut]
-        //[Authorize(Roles = RoleNames.Worker)]
-        public async Task<IActionResult> ConfirmReservation([FromBody] UserReservationViewModel model)
+        public async Task<IActionResult> Update([FromBody] Reservation model)
         {
             if (!ModelState.IsValid) return BadRequest();
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user is null) return BadRequest("Пользователь не найден");
-
             var reservation = await _dbContext.UserReservations
-                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.Date == model.Date);
+                .FirstOrDefaultAsync(x => x.Id == model.Id);
 
             if (reservation is null) return BadRequest("Резервирование не найдено");
 
-            reservation.IsValid = true;
-            await _dbContext.SaveChangesAsync();
+            reservation.Date = model.Date;
+            reservation.CountPeople = model.CountPeople;
+            reservation.IsValid = model.IsConfirmed;
+            reservation.ChangeAt = DateTime.UtcNow;
 
+            await _dbContext.SaveChangesAsync();
+            
             return Ok();
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Delete([FromBody] UserReservationViewModel model)
+        public async Task<IActionResult> Delete([FromQuery] int id)
         {
-            if (!ModelState.IsValid) return BadRequest();
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user is null) return BadRequest("Пользователь не найден");
-
             var reservation = await _dbContext.UserReservations
-                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.Date == model.Date);
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (reservation is null) return BadRequest("Резервирование не найдено");
 
@@ -63,8 +55,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpPost]
-        //[Authorize]
-        public async Task<IActionResult> Add([FromBody] UserReservationViewModel model)
+        public async Task<IActionResult> Add([FromBody] Business.Models.UserReservation model)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -72,7 +63,7 @@ namespace ServerApi.Controllers
 
             if (user is null) return BadRequest("Пользователь не найден");
 
-            var reservation = new UserReservation
+            var reservation = new DbModels.UserReservation
             {
                 UserId = user.Id,
                 User = user,
@@ -89,14 +80,19 @@ namespace ServerApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetLastFiveHundred()
         {
             var reservations = await _dbContext.UserReservations
+                .Take(500)
                 .Include(x => x.User)
-                .Select(x => new UserReservationViewModel
+                .Select(x => new Reservation
                 {
                     Date = x.Date,
                     Email = x.User.Email,
+                    Name = $"{x.User.FirstName} {x.User.LastName}",
+                    CountPeople = x.CountPeople,
+                    IsConfirmed = x.IsValid,
+                    Id = x.Id,
                 })
                 .ToListAsync();
 

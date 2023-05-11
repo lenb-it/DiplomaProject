@@ -5,12 +5,11 @@ using Business.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Identity;
+using System.Reflection.Metadata.Ecma335;
 
 namespace ServerApi.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class MenuController : BaseApiController
     {
         private readonly RestaurantDbContext _dbContext;
@@ -21,7 +20,8 @@ namespace ServerApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMenu()
+        [AllowAnonymous]
+        public async Task<IActionResult> GetValidMenuWithDiscount()
         {
             var menu = await _dbContext.DishesAndDrinks
                 .Include(x => x.DishAndDrinkCategory)
@@ -32,20 +32,66 @@ namespace ServerApi.Controllers
                     Description = x.Description,
                     Name = x.Name,
                     Price = x.Price,
+                    Id = x.Id,
                 })
-                //.GroupBy(x => x.CategoryName)
                 .ToListAsync();
+
+            var now = DateTime.UtcNow;
+            var discounts = _dbContext.DiscountDishesAndDrinks
+                .Where(x => x.DateStart >= now && x.DateEnd <= now_
+                .ToList();
+
+            discounts.ForEach(discount =>
+            {
+                var dishAndDrink = menu.FirstOrDefault(x => x.Id == discount.Id);
+
+                if (dishAndDrink is null) return;
+
+                dishAndDrink.Discount = true;
+                dishAndDrink.Price -= dishAndDrink.Price * discount.DiscountValue / 100f;
+            });
+
+            return Ok(menu);
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllMenu()
+        {
+            var menu = await _dbContext.DishesAndDrinks
+                .Include(x => x.DishAndDrinkCategory)
+                .Select(x => new DishAndDrinkMenu
+                {
+                    CategoryName = x.DishAndDrinkCategory.Name,
+                    Description = x.Description,
+                    Name = x.Name,
+                    Price = x.Price,
+                    Id = x.Id,
+                    IsValid = x.IsValid,
+                })
+                .ToListAsync();
+
+            var now = DateTime.UtcNow;
+            var discounts = await _dbContext.DiscountDishesAndDrinks
+                .Where(x => x.DateStart >= now && x.DateEnd <= now)
+                .ToListAsync();
+
+            discounts.ForEach(discount =>
+            {
+                var dishAndDrink = menu.FirstOrDefault(x => x.Id == discount.Id);
+
+                if (dishAndDrink is not null) dishAndDrink.Discount = true;
+            });
 
             return Ok(menu);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDishAndDrinkByName([FromBody] string name)
+        public async Task<IActionResult> GetDishAndDrinkById([FromBody] int id)
         {
-            if (string.IsNullOrWhiteSpace(name)) return BadRequest("Название не может быть пустым");
-
             var dishAndDrink = await _dbContext.DishesAndDrinks
-                .FirstOrDefaultAsync(x => x.Name == name);
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             return dishAndDrink is not null ? 
                 Ok(dishAndDrink) : 
@@ -53,7 +99,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateDishAndDrinkByName([FromBody] DishAndDrinkUpdateViewModel model)
+        public async Task<IActionResult> UpdateDishAndDrinkByName([FromBody] DishAndDrinkUpdate model)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -70,7 +116,7 @@ namespace ServerApi.Controllers
             dishAndDrink.Description = model.Description;
             dishAndDrink.Name = model.Name;
             dishAndDrink.Price = model.Price;
-            dishAndDrink.CategoryId = category.Id;
+            dishAndDrink.DishAndDrinkCategoryId = category.Id;
             dishAndDrink.DishAndDrinkCategory = category;
             dishAndDrink.IsValid = model.IsValid;
 
@@ -80,8 +126,8 @@ namespace ServerApi.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = RoleNames.Administrator)]
-        public async Task<IActionResult> AddDishAndDrink([FromBody] DishAndDrinkAddViewModel model)
+        [Authorize(Roles = RoleNames.Administrator)]
+        public async Task<IActionResult> AddDishAndDrink([FromBody] DishAndDrinkAdd model)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -97,7 +143,7 @@ namespace ServerApi.Controllers
                 Price = model.Price,
                 IsValid = model.IsValid,
                 DishAndDrinkCategory = category,
-                CategoryId = category.Id
+                DishAndDrinkCategoryId = category.Id
             };
 
             _dbContext.DishesAndDrinks.Add(dishAndDrink);
@@ -107,7 +153,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleNames.Administrator)]
         public async Task<IActionResult> AddDishAndDrinkCategory([FromBody] string name)
         {
             if (!string.IsNullOrWhiteSpace(name)) BadRequest($"Название не может быть пустым");
@@ -128,7 +174,7 @@ namespace ServerApi.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetDishAndDrinkCategories()
         {
             var categories = await _dbContext.DishAndDrinkCategories

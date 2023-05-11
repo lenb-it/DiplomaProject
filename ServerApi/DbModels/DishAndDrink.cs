@@ -10,7 +10,7 @@ namespace ServerApi.DbModels
         [MaxLength(100)]
         public string Name { get; set; }
 
-        public int CategoryId { get; set; }
+        public int DishAndDrinkCategoryId { get; set; }
 
         public float Price { get; set; }
 

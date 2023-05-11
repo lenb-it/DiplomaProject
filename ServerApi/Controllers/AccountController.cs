@@ -39,10 +39,9 @@ namespace ServerApi.Controllers
         ///     
         /// </remarks>
         [HttpPost]
-        public async Task<IActionResult> LogIn([FromBody] LogInViewModel model)
+        public async Task<IActionResult> LogIn([FromBody] LogIn model)
         {
             if (!ModelState.IsValid) return BadRequest();
-            //if (!model.IsValid()) return BadRequest(model.Errors);
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -53,16 +52,21 @@ namespace ServerApi.Controllers
             if (!resultSignIn.Succeeded) return BadRequest(new[] { "error password" });
 
             var claims = (await _userManager.GetClaimsAsync(user)).ToList();
-            var token = CreateToket(claims);
+            var roles = await _userManager.GetRolesAsync(user);
+            var resultModel = new LogInResult
+            {
+                Token = CreateToket(claims),
+                Email = user.Email,
+                Role = roles.FirstOrDefault() ?? string.Empty,
+            };
 
-            return Ok(new { user.Email, token });
+            return Ok(resultModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        public async Task<IActionResult> Register([FromBody] Register model)
         {
             if (!ModelState.IsValid) return BadRequest();
-            //if (!model.IsValid()) return BadRequest(model.Errors);
 
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
                 return BadRequest("Такой пользователь уже зарегестрирован");
@@ -73,14 +77,19 @@ namespace ServerApi.Controllers
             if (!createResult.Succeeded) return BadRequest(createResult.Errors);
 
             var user = await _userManager.FindByEmailAsync(registerUser.Email);
-            await _userManager.AddToRoleAsync(user, RoleNames.User);
+            var role = RoleNames.User;
+            await _userManager.AddToRoleAsync(user, role);
 
-            var claims = CreateUserClaims(user);
+            var claims = CreateUserClaims(user, role);
             await _userManager.AddClaimsAsync(user, claims);
-            var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
-            var token = CreateToket(claims);
+            var resultModel = new LogInResult
+            {
+                Token = CreateToket(claims),
+                Email = user.Email,
+                Role = role,
+            };
 
-            return signInResult.Succeeded ? Ok(token) : Unauthorized();
+            return Ok(resultModel);
         }
 
         [HttpGet]
@@ -102,7 +111,7 @@ namespace ServerApi.Controllers
             return new JwtSecurityTokenHandler().WriteToken(jwtToken);
         }
 
-        private User CreateRegisterUser(RegisterViewModel model)
+        private User CreateRegisterUser(Register model)
         {
             return new User
             {
@@ -115,13 +124,13 @@ namespace ServerApi.Controllers
             };
         }
 
-        private List<Claim> CreateUserClaims(User user)
+        private List<Claim> CreateUserClaims(User user, string role)
         {
             return new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, RoleNames.User),
+                new Claim(ClaimTypes.Role, role),
             };
         }
     }
